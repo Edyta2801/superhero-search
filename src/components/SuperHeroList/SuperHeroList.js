@@ -5,56 +5,73 @@ import {
   Table,
   Thead,
   Tbody,
-  Tfoot,
+  Box,
   Tr,
+  Image,
   Th,
   Td,
   TableCaption,
 } from '@chakra-ui/react';
 
+import {useEffect, useState} from 'react';
+// import api from '../../api';
+import axios from 'axios';
+
 export function SuperHeroList() {
+  const [superheros, setSuperheros] = useState([]);
+  // const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    axios
+      .get(`https://www.superheroapi.com/api.php/931794854341970/search/marvel`)
+      .then(res => {
+        console.log('response= ', res);
+        setSuperheros(res.data.results);
+        console.log('setSuperheros', res.data.results);
+      })
+      .catch(error => {
+        // setLoading(true);
+        console.log(error.res);
+      });
+  }, []);
+
   return (
-      <Stack>
-          <Stack direction="row" mx='5'>
-              <Input />
-              <Button colorScheme="blue">Search</Button>
-          </Stack>
-          <Table variant="simple">
-              <TableCaption>
-                  Imperial to metric conversion factors
-              </TableCaption>
-              <Thead>
-                  <Tr>
-                      <Th>To convert</Th>
-                      <Th>into</Th>
-                      <Th isNumeric>multiply by</Th>
-                  </Tr>
-              </Thead>
-              <Tbody>
-                  <Tr>
-                      <Td>inches</Td>
-                      <Td>millimetres (mm)</Td>
-                      <Td isNumeric>25.4</Td>
-                  </Tr>
-                  <Tr>
-                      <Td>feet</Td>
-                      <Td>centimetres (cm)</Td>
-                      <Td isNumeric>30.48</Td>
-                  </Tr>
-                  <Tr>
-                      <Td>yards</Td>
-                      <Td>metres (m)</Td>
-                      <Td isNumeric>0.91444</Td>
-                  </Tr>
-              </Tbody>
-              <Tfoot>
-                  <Tr>
-                      <Th>To convert</Th>
-                      <Th>into</Th>
-                      <Th isNumeric>multiply by</Th>
-                  </Tr>
-              </Tfoot>
-          </Table>
+    <Box>
+      <Stack direction="row">
+        <Input />
+        <Button colorScheme="blue">Search</Button>
       </Stack>
+
+      <Table variant="simple">
+
+        <TableCaption>SuperHero Search</TableCaption>
+
+        <Thead>
+          <Tr>
+            <Th>Image</Th>
+            <Th>Name</Th>
+            <Th>Open Modal</Th>
+          </Tr>
+        </Thead>
+
+        <Tbody>
+          {superheros.map(superhero => (
+            <Tr>
+              <div key={superhero.id} />
+              <Td>
+                <Image
+                  boxSize="100px"
+                  objectFit="cover"
+                  alt="superhero image"
+                  src={superhero.image.url}
+                />
+              </Td>
+              <Td>{superhero.name}</Td>
+              <Td>Open Modal</Td>
+            </Tr>
+          ))}
+        </Tbody>
+      </Table>
+    </Box>
   );
 }
