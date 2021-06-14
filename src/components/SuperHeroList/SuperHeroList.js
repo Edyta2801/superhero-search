@@ -24,33 +24,76 @@ import {
   Avatar,
   SimpleGrid,
   Progress,
+  Grid,
+  GridItem,
+  Badge,
+  CircularProgress,
+  Tag,
 } from '@chakra-ui/react';
 
 import hero from '../../hero.jpg';
 import {useEffect, useState, useRef} from 'react';
 // import api from '../../api';
 import axios from 'axios';
+import {useDebounce} from '../../hooks/useDebounce';
 
 // import {SuperHeroTable} from '../SuperHeroTable';
+
+async function getSuperhero({searchTermInput, setSuperheros, setIsLoading}) {
+  if (searchTermInput === '') {
+    return;
+  }
+  setIsLoading(true);
+  try {
+    const getResponse = async () => {
+      await axios
+        .get(`https://www.superheroapi.com/api.php/931794854341970/search/${searchTermInput}`)
+        .then(res => {
+          console.log('response= ', res);
+          setSuperheros(res.data.results);
+          console.log('setSuperheros', res.data.results);
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    };
+    getResponse();
+  } finally {
+    setIsLoading(false);
+  }
+}
+
+const words = ['marvel', 'batman', 'cat'];
+
+function getSuggestions(searchTerm) {
+  if (!searchTerm) {
+    return [];
+  }
+  return words.filter(word => word.startsWith(searchTerm));
+}
 
 export function SuperHeroList() {
   const [superheros, setSuperheros] = useState([]);
   const [searchTermInput, setSearchTermInput] = useState('');
-  // const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
 
-  // useEffect(() => {
-  //   axios
-  //     .get(`https://www.superheroapi.com/api.php/931794854341970/search/marvel`)
-  //     .then(res => {
-  //       console.log('response= ', res);
-  //       setSuperheros(res.data.results);
-  //       console.log('setSuperheros', res.data.results);
-  //     })
-  //     .catch(error => {
-  //       // setLoading(true);
-  //       console.log(error.res);
-  //     });
-  // }, []);
+  const debouncedSearchTerm = useDebounce(searchTermInput, 500);
+
+  useEffect(() => {
+    getSuperhero({
+      searchTermInput: debouncedSearchTerm,
+      setSuperheros,
+      setIsLoading,
+    });
+  }, [debouncedSearchTerm]);
+
+  const suggestionsForInput = getSuggestions(searchTermInput);
+
+  useEffect(() => {
+    setSuggestions(suggestionsForInput);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [suggestionsForInput.join('')]);
 
   return (
     <Stack>
@@ -62,24 +105,24 @@ export function SuperHeroList() {
           value={searchTermInput}
           onChange={event => setSearchTermInput(event.target.value)}
         />
+        {isLoading && <CircularProgress isIndeterminate color="green.300" size={30} />}
         <Button
-          onClick={() => {
-            axios
-              .get(`https://www.superheroapi.com/api.php/931794854341970/search/${searchTermInput}`)
-              .then(res => {
-                console.log('response= ', res);
-                setSuperheros(res.data.results);
-                console.log('setSuperheros', res.data.results);
-              })
-              .catch(error => {
-                // setLoading(true);
-                console.log(error.res);
-              });
-          }}
           colorScheme="blue"
+          onClick={() =>
+            getSuperhero({
+              searchTermInput,
+              setSuperheros,
+              setIsLoading,
+            })
+          }
         >
           Search
         </Button>
+      </Stack>
+      <Stack direction="row" justifyContent="center">
+        {suggestions.map(suggestion => (
+          <Tag key={suggestion}>{suggestion}</Tag>
+        ))}
       </Stack>
       <SuperHeroTable superheros={superheros} />
     </Stack>
@@ -132,12 +175,7 @@ export function DescriptionModal({superhero}) {
   const btnRef = useRef();
   return (
     <>
-      <RadioGroup value={scrollBehavior} onChange={e => setScrollBehavior(e.target.value)}>
-        {/* <Stack direction="row">
-          <Radio value="inside">inside</Radio>
-          <Radio value="outside">outside</Radio>
-        </Stack> */}
-      </RadioGroup>
+      <RadioGroup value={scrollBehavior} onChange={e => setScrollBehavior(e.target.value)} />
       <Button ref={btnRef} onClick={onOpen} colorScheme="blue">
         Show details
       </Button>
@@ -184,22 +222,79 @@ export function DescriptionModal({superhero}) {
             <Heading my="10" align="center" as="h4" size="md">
               Powerstats
             </Heading>
-            <SimpleGrid columns={2}>
-              <Text color="gray.500">Intelligence</Text>
-              <Progress value={superhero.powerstats['intelligence']} />
-              <Text color="gray.500">Strength</Text>
-              <Progress value={superhero.powerstats['strength']} />
-              <Text color="gray.500">Speed</Text>
-              <Progress value={superhero.powerstats['speed']} />
-              <Text color="gray.500">Durability</Text>
-              <Progress value={superhero.powerstats['durability']} />
-              <Text color="gray.500">Power</Text>
-              <Progress value={superhero.powerstats['power']} />
-              <Text color="gray.500">Combat</Text>
-              <Progress value={superhero.powerstats['combat']} />
-            </SimpleGrid>
 
-            {console.log(Object.entries(superhero.biography)[0][1])}
+            <Grid h="20px" templateRows="repeat(2, 1fr)" templateColumns="repeat(8, 1fr)">
+              <GridItem colSpan={2}>
+                <Text color="gray.500">Intelligence</Text>
+              </GridItem>
+              <GridItem colSpan={1}>
+                <Badge ml="1" as="sup">
+                  {superhero.powerstats['intelligence']}
+                </Badge>
+              </GridItem>
+              <GridItem colSpan={5}>
+                <Progress size="md" value={superhero.powerstats['intelligence']} />
+              </GridItem>
+
+              <GridItem colSpan={2}>
+                <Text color="gray.500">Strength</Text>
+              </GridItem>
+              <GridItem colSpan={1}>
+                <Badge as="sup" ml="1">
+                  {superhero.powerstats['strength']}
+                </Badge>
+              </GridItem>
+              <GridItem colSpan={5}>
+                <Progress size="md" value={superhero.powerstats['strength']} />
+              </GridItem>
+
+              <GridItem colSpan={2}>
+                <Text color="gray.500">Speed</Text>
+              </GridItem>
+              <GridItem colSpan={1}>
+                <Badge as="sup" ml="1">
+                  {superhero.powerstats['speed']}
+                </Badge>
+              </GridItem>
+              <GridItem colSpan={5}>
+                <Progress size="md" value={superhero.powerstats['speed']} />
+              </GridItem>
+
+              <GridItem colSpan={2}>
+                <Text color="gray.500">Durability</Text>
+              </GridItem>
+              <GridItem colSpan={1}>
+                <Badge as="sup" l="1">
+                  {superhero.powerstats['durability']}
+                </Badge>
+              </GridItem>
+              <GridItem colSpan={5}>
+                <Progress size="md" value={superhero.powerstats['durability']} />
+              </GridItem>
+
+              <GridItem colSpan={2}>
+                <Text color="gray.500">Power</Text>
+              </GridItem>
+              <GridItem colSpan={1}>
+                <Badge as="sup" ml="1">
+                  {superhero.powerstats['power']}
+                </Badge>
+              </GridItem>
+              <GridItem colSpan={5}>
+                <Progress size="md" value={superhero.powerstats['power']} />
+              </GridItem>
+              <GridItem colSpan={2}>
+                <Text color="gray.500">Combat</Text>
+              </GridItem>
+              <GridItem colSpan={1}>
+                <Badge as="sup" ml="1">
+                  {superhero.powerstats['combat']}
+                </Badge>
+              </GridItem>
+              <GridItem colSpan={5}>
+                <Progress size="md" value={superhero.powerstats['combat']} />
+              </GridItem>
+            </Grid>
           </ModalBody>
           <ModalFooter>
             <Button colorScheme="blue" mr={3} onClick={onClose}>
