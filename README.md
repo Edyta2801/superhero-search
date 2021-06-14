@@ -4,7 +4,7 @@
 
 ## See [DEMO](https://superhero-search-app.netlify.app/)
 
-![](./image-supehero.png)
+![](./image_supehero.png)
 
 ## Technologies
 
