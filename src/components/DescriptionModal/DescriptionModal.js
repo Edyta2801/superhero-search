@@ -17,6 +17,8 @@ import {
   Grid,
   GridItem,
   Badge,
+  UnorderedList,
+  ListItem,
 } from '@chakra-ui/react';
 import hero from '../../hero.jpg';
 
@@ -58,11 +60,17 @@ export function DescriptionModal({superhero}) {
             </Heading>
             <SimpleGrid columns={2} spacing={4}>
               <Text color="gray.500">Full-name</Text>
+
               <Text>{superhero.biography['full-name']}</Text>
+
               <Text color="gray.500">Alter-ego</Text>
               <Text>{superhero.biography['alter-egos']}</Text>
               <Text color="gray.500">Aliases</Text>
-              <Text>{superhero.biography['aliases']}</Text>
+              <UnorderedList>
+                {superhero.biography['aliases'].map((alias, index) => (
+                  <ListItem key={index}>{alias}</ListItem>
+                ))}
+              </UnorderedList>
               <Text color="gray.500">Place-of-birth</Text>
               <Text>{superhero.biography['place-of-birth']}</Text>
               <Text color="gray.500">First-appearance</Text>
@@ -72,17 +80,29 @@ export function DescriptionModal({superhero}) {
               <Text color="gray.500">Alignment</Text>
               <Text>{superhero.biography['alignment']}</Text>
             </SimpleGrid>
-            <Heading my="10" align="center" as="h4" size="md">
+
+            <Heading
+              my="10"
+              align="center"
+              as="h4"
+              size="md"
+              style={{display: superhero.powerstats['intelligence'] !== 'null' ? 'block' : 'none'}}
+            >
               Powerstats
             </Heading>
 
-            <Grid h="20px" templateRows="repeat(2, 1fr)" templateColumns="repeat(8, 1fr)">
+            <Grid
+              h="20px"
+              templateRows="repeat(2, 1fr)"
+              templateColumns="repeat(8, 1fr)"
+              style={{display: superhero.powerstats['intelligence'] !== 'null' ? '' : 'none'}}
+            >
               <GridItem colSpan={2}>
                 <Text color="gray.500">Intelligence</Text>
               </GridItem>
               <GridItem colSpan={1}>
                 <Badge ml="1" as="sup">
-                  {superhero.powerstats['intelligence']}
+                  {superhero.powerstats['intelligence'] !== 'null'}
                 </Badge>
               </GridItem>
               <GridItem colSpan={5}>
@@ -94,7 +114,7 @@ export function DescriptionModal({superhero}) {
               </GridItem>
               <GridItem colSpan={1}>
                 <Badge as="sup" ml="1">
-                  {superhero.powerstats['strength']}
+                  {superhero.powerstats['strength'] !== 'null'}
                 </Badge>
               </GridItem>
               <GridItem colSpan={5}>
@@ -106,7 +126,7 @@ export function DescriptionModal({superhero}) {
               </GridItem>
               <GridItem colSpan={1}>
                 <Badge as="sup" ml="1">
-                  {superhero.powerstats['speed']}
+                  {superhero.powerstats['speed'] !== 'null'}
                 </Badge>
               </GridItem>
               <GridItem colSpan={5}>
@@ -118,7 +138,7 @@ export function DescriptionModal({superhero}) {
               </GridItem>
               <GridItem colSpan={1}>
                 <Badge as="sup" l="1">
-                  {superhero.powerstats['durability']}
+                  {superhero.powerstats['durability'] !== 'null'}
                 </Badge>
               </GridItem>
               <GridItem colSpan={5}>
@@ -130,7 +150,7 @@ export function DescriptionModal({superhero}) {
               </GridItem>
               <GridItem colSpan={1}>
                 <Badge as="sup" ml="1">
-                  {superhero.powerstats['power']}
+                  {superhero.powerstats['power'] !== 'null'}
                 </Badge>
               </GridItem>
               <GridItem colSpan={5}>
@@ -141,7 +161,7 @@ export function DescriptionModal({superhero}) {
               </GridItem>
               <GridItem colSpan={1}>
                 <Badge as="sup" ml="1">
-                  {superhero.powerstats['combat']}
+                  {superhero.powerstats['combat'] !== 'null'}
                 </Badge>
               </GridItem>
               <GridItem colSpan={5}>
