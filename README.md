@@ -29,3 +29,27 @@ Recommended libraries:
 - Bootstrap or any other graphics library.
 
 The project should have an organized structure and basic component tests (snapshots).
+
+
+
+main.js
+// module.exports = {
+//   "stories": [
+//     "../src/**/*.stories.mdx",
+//     "../src/**/*.stories.@(js|jsx|ts|tsx)"
+//   ],
+//   "addons": [
+//     "@storybook/addon-links",
+//     "@storybook/addon-essentials",
+//     "@storybook/preset-create-react-app"
+//   ]
+// }
+
+module.exports = {
+  stories: ["../src/**/*.stories.js"],
+  addons: ["@storybook/preset-create-react-app"]
+};
+
+package.json
+  // "start": "cross-env PORT=3001 react-scripts start",
+     // "storybook": "start-storybook -p 6006 -s public",
